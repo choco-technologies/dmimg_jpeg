@@ -1,6 +1,6 @@
 # #############################################################################
 # 
-# 	This is an example of a simple application module.
+# 	dmimg_jpeg - the JPEG decoder of dmimg (a library module).
 #
 # #############################################################################
 DMOD_DIR=@DMOD_DIR@
@@ -24,13 +24,13 @@ DMOD_MODULE_VERSION=0.1
 DMOD_AUTHOR_NAME=Patryk Kubiak
 
 # The list of C sources
-DMOD_CSOURCES=src/dmimg_jpeg.c
+DMOD_CSOURCES=src/dmimg_jpeg.c third_party/tjpgd/tjpgd.c
 
 # The list of C++ sources
 DMOD_CXXSOURCES=
 
 # The list of include directories
-DMOD_INC_DIRS=
+DMOD_INC_DIRS=third_party/tjpgd
 
 # The list of libraries to link
 DMOD_LIBS=
@@ -46,4 +46,4 @@ DMOD_MAL_IMPLS=
 # -----------------------------------------------------------------------------
 #   Include the dmod app makefile
 # -----------------------------------------------------------------------------
-include $(DMOD_DMF_APP_FILE_PATH)
+include $(DMOD_DMF_LIB_FILE_PATH)

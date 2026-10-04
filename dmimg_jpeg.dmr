@@ -29,5 +29,8 @@ inc=./include => ${destination}/${module}/include [origin=${repo_dir}/include] [
 # License file
 license=./LICENSE => ${destination}/${module}/LICENSE [origin=${repo_dir}/LICENSE]
 
+# TJpgDec (ChaN), which the decoder is built on
+license_tjpgd=./LICENSE.tjpgd => ${destination}/${module}/LICENSE.tjpgd [origin=${repo_dir}/third_party/tjpgd/LICENSE]
+
 # Adding itself
 dmr=./${module}.dmr => ${destination}/${module}/${module}.dmr [origin=${repo_dir}/${module}.dmr]

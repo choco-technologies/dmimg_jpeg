@@ -1,10 +1,10 @@
 # dmimg_jpeg Documentation
 
-Welcome to the dmimg_jpeg module documentation.
+The JPEG decoder plugin of dmimg.
 
 ## Contents
 
-- **[api-reference.md](api-reference.md)** - Command-line usage and behavior
+- **[api-reference.md](api-reference.md)** - what the decoder implements and how it behaves
 
 View documentation using `dmf-man`:
 
