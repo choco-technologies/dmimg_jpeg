@@ -3,11 +3,47 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/choco-technologies/dmimg_jpeg/actions/workflows/ci.yml/badge.svg)](https://github.com/choco-technologies/dmimg_jpeg/actions/workflows/ci.yml)
 
-dmimg_jpeg DMOD application module.
+The JPEG decoder of [dmimg](https://github.com/choco-technologies/dmimg).
 
 ## Description
 
-TODO: describe what this module does.
+A dmimg decoder plugin: once it is enabled - or when `dmimg_open_file()`
+meets a `.jpg` / `.jpeg` / `.jpe` / `.jfif` file and loads it by the name -
+every program that reads images through dmimg reads JPEG files.
+
+- **Baseline JPEG**: gray or YCbCr, any chroma subsampling (4:4:4, 4:2:2,
+  4:2:0). Progressive and arithmetic-coded JPEG are not supported
+  (`-ENOTSUP`).
+- **Decoded smaller in the IDCT**: at 1/2, 1/4 or 1/8 of the size
+  (`info.scales`) - a 2400x1360 photo for a 480x272 screen is decoded at
+  1/4, in a fraction of the time and memory of decoding it whole
+  (todmvi asks for it by itself). A scale at which the image would be
+  smaller than a pixel is not offered.
+- **Small**: one MCU (8x8 ... 16x16 pixels) at a time; the decoder keeps a
+  work area of 4 KiB and one MCU of pixels - about 5.5 KiB - never the
+  image. Input is read in pieces of 512 bytes.
+- TJpgDec rounds a scaled size down, dmimg up (`DMIMG_SCALED`): at a scale
+  the size is not a multiple of, the last column / row repeats the one next
+  to it.
+- Pixels are opaque (`info.alpha` is false).
+
+Built on [TJpgDec](http://elm-chan.org/fsw/tjpgd/) R0.03 by ChaN - see
+[third_party/tjpgd](third_party/tjpgd).
+
+## Usage
+
+```c
+#include "dmimg.h"
+
+dmimg_info_t info;
+dmimg_t image = dmimg_open_file("/sd/photo.jpg", &info, NULL);       /* loads dmimg_jpeg */
+if (image != NULL)
+{
+    uint8_t scale = (info.scales & DMIMG_SCALE(2)) ? 2 : 0;         /* 1/4 */
+    dmimg_decode(image, scale, put_block, ctx);
+    dmimg_close(image);
+}
+```
 
 ## Building
 
@@ -31,68 +67,15 @@ make DMOD_MODE=DMOD_MODULE DMOD_DIR=/path/to/dmod
 
 ## Testing
 
-Tests are built automatically alongside the module (see `tests/`). Once built,
-run them with `ctest`:
+The tests decode the JPEG files in [tests/fixtures](tests/fixtures) - made
+by `tests/fixtures/make_fixtures.py` (4:2:0, 4:4:4, gray, progressive, a
+tiny one) - through dmimg, at every scale:
 
 ```bash
 cd build
 ctest --output-on-failure
 ```
 
-`ctest` installs the test module's dependencies with `dmf-get` and then runs
-it through `dmod_loader`. To run it manually instead:
-
-```bash
-export DMOD_DMF_DIR=$(pwd)/build/dmf
-dmf-get install -d ${DMOD_DMF_DIR}/test_dmimg_jpeg-local.dmd -y
-dmod_loader build/dmf/test_dmimg_jpeg.dmf
-```
-
-## Usage
-
-<TBD>
-
-This application module can be loaded and executed using the DMOD loader:
-
-```bash
-dmod_loader /path/to/dmimg_jpeg.dmf
-```
-
-## API
-
-`dmimg_jpeg` is loaded and executed through the DMOD loader - it does not
-expose a callable module API of its own. See
-[docs/api-reference.md](docs/api-reference.md) for its command-line
-arguments and exit codes.
-
-## Documentation
-
-See the `docs/` directory:
-
-- **[api-reference.md](docs/api-reference.md)** - Command-line usage
-
-View documentation using `dmf-man dmimg_jpeg`.
-
-## Project Structure
-
-```
-dmimg_jpeg/
-├── docs/              # Documentation (markdown format)
-├── src/
-│   └── dmimg_jpeg.c
-├── tests/
-│   ├── CMakeLists.txt
-│   └── dmimg_jpeg_test.c
-├── CMakeLists.txt
-├── Makefile
-├── dmimg_jpeg.dmr
-└── manifest.dmm
-```
-
-## Author
-
-Patryk Kubiak
-
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE); TJpgDec: [third_party/tjpgd/LICENSE](third_party/tjpgd/LICENSE).
